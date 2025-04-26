@@ -38,14 +38,14 @@ function UnitConverter() {
 
   return (
     <div className="container">
-      <h1>単位変換アプリ</h1>
+      <h1>バイト換算</h1>
       <div className="input-group">
         <input
           type="number"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="サイズを入力"
-          onKeyPress={(e) => e.key === "Enter" && handleConvert()}
+          onKeyDown={(e) => e.key === "Enter" && handleConvert()}
         />
         <select
           value={selectedUnit}

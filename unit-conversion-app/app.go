@@ -25,7 +25,7 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// ConvertSize は指定されたサイズを全ての単位に変換します
+// converts input to all units of a given size
 func (a *App) ConvertSize(input string) map[string]float64 {
 	fmt.Printf("Received input: %s\n", input)
 
