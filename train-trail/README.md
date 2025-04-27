@@ -40,6 +40,7 @@ etc.
 Extract route maps by using [overpass turbo](https://overpass-turbo.eu/), a browser-based query tool for extracting only the necessary information from OpenStreetMap data.
 
 Example: This query with overpass turbo, you can get the Kyoto city conventional line
+[Link](https://overpass-turbo.eu/s/2335) to execute the query.
 
 ```txt
 [out:json][timeout:25];
