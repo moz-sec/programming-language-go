@@ -13,3 +13,12 @@
 ## Description
 
 ## Usage
+
+## Technologies
+
+| Technology | Version |
+|------------|---------|
+| Frontend | React |
+| Backend | Go(Wails) |
+| Map | Leaflet.js + OpenStreetMap + GeoJSON |
+| DataFormat | GeoJSON + JSON |
