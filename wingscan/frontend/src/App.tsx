@@ -4,6 +4,80 @@ import logo_dark from "./assets/images/logo-dark.png";
 import "./App.css";
 import { ScanPort, ScanPorts } from "../wailsjs/go/main/App";
 
+// Initialize the theme based on local storage and system settings
+// The priorities are as follows.
+// 1. local storage settings
+// 2. system settings
+const initializeTheme = (setIsDarkMode: (value: boolean) => void) => {
+  const systemPrefersDark = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  ).matches;
+  const savedTheme = localStorage.getItem("theme");
+  const initialTheme = savedTheme ? savedTheme === "dark" : systemPrefersDark;
+
+  setIsDarkMode(initialTheme);
+  if (initialTheme) {
+    document.body.classList.add("dark-mode");
+  }
+};
+
+// Toggle the theme between light and dark mode
+const toggleTheme = (
+  isDarkMode: boolean,
+  setIsDarkMode: (value: boolean) => void
+) => {
+  const newTheme = !isDarkMode;
+  setIsDarkMode(newTheme);
+  document.body.classList.toggle("dark-mode");
+  localStorage.setItem("theme", newTheme ? "dark" : "light");
+};
+
+// Handle system theme changes
+const watchSystemTheme = (setIsDarkMode: (value: boolean) => void) => {
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const handleChange = (e: MediaQueryListEvent) => {
+    if (!localStorage.getItem("theme")) {
+      setIsDarkMode(e.matches);
+      if (e.matches) {
+        document.body.classList.add("dark-mode");
+      } else {
+        document.body.classList.remove("dark-mode");
+      }
+    }
+  };
+
+  mediaQuery.addEventListener("change", handleChange);
+  return () => mediaQuery.removeEventListener("change", handleChange);
+};
+
+const handleScan = async (
+  ipAddress: string,
+  startPort: string,
+  endPort: string,
+  setResultText: (text: string) => void
+) => {
+  try {
+    const start = parseInt(startPort);
+    const end = parseInt(endPort);
+    const results = await ScanPorts(ipAddress, start, end);
+
+    let openPorts = [];
+    for (const [port, isOpen] of Object.entries(results)) {
+      if (isOpen) {
+        openPorts.push(port);
+      }
+    }
+
+    if (openPorts.length > 0) {
+      setResultText(`Open ports: ${openPorts.join(", ")}`);
+    } else {
+      setResultText("No open ports found.");
+    }
+  } catch (error) {
+    setResultText(`Error : ${error}`);
+  }
+};
+
 function App() {
   const [resultText, setResultText] = useState("");
   const [ipAddress, setIpAddress] = useState("localhost");
@@ -11,70 +85,12 @@ function App() {
   const [endPort, setEndPort] = useState("1024");
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Initialize the theme based on local storage and system settings
-  // The priorities are as follows.
-  // 1. local storage settings
-  // 2. system settings
   useEffect(() => {
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    const savedTheme = localStorage.getItem("theme");
-    const initialTheme = savedTheme ? savedTheme === "dark" : systemPrefersDark;
-
-    setIsDarkMode(initialTheme);
-    if (initialTheme) {
-      document.body.classList.add("dark-mode");
-    }
+    initializeTheme(setIsDarkMode);
   }, []);
 
-  const handleScan = async () => {
-    try {
-      const start = parseInt(startPort);
-      const end = parseInt(endPort);
-      const results = await ScanPorts(ipAddress, start, end);
-
-      let openPorts = [];
-      for (const [port, isOpen] of Object.entries(results)) {
-        if (isOpen) {
-          openPorts.push(port);
-        }
-      }
-
-      if (openPorts.length > 0) {
-        setResultText(`Open ports: ${openPorts.join(", ")}`);
-      } else {
-        setResultText("No open ports found.");
-      }
-    } catch (error) {
-      setResultText(`Error : ${error}`);
-    }
-  };
-
-  // Toggle the theme between light and dark mode
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    document.body.classList.toggle("dark-mode");
-    localStorage.setItem("theme", newTheme ? "dark" : "light");
-  };
-
-  // Handle system theme changes
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem("theme")) {
-        setIsDarkMode(e.matches);
-        if (e.matches) {
-          document.body.classList.add("dark-mode");
-        } else {
-          document.body.classList.remove("dark-mode");
-        }
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    watchSystemTheme(setIsDarkMode);
   }, []);
 
   return (
@@ -82,7 +98,11 @@ function App() {
       <div className="theme-toggle">
         <span className="theme-label">Light</span>
         <label className="toggle-switch">
-          <input type="checkbox" checked={isDarkMode} onChange={toggleTheme} />
+          <input
+            type="checkbox"
+            checked={isDarkMode}
+            onChange={() => toggleTheme(isDarkMode, setIsDarkMode)}
+          />
           <span className="toggle-slider"></span>
         </label>
         <span className="theme-label">Dark</span>
@@ -121,7 +141,12 @@ function App() {
           onChange={(e) => setEndPort(e.target.value)}
           placeholder="End Port"
         />
-        <button className="btn" onClick={handleScan}>
+        <button
+          className="btn"
+          onClick={() =>
+            handleScan(ipAddress, startPort, endPort, setResultText)
+          }
+        >
           Scan
         </button>
       </div>
