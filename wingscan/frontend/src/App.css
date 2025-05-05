@@ -179,3 +179,42 @@ input:checked + .toggle-slider:before {
   background-image: linear-gradient(to top, #3d3d3d 0%, #4d4d4d 100%);
   color: #ffffff;
 }
+
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.mode-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  color: #333333;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dark-mode .mode-btn {
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+
+.mode-btn.active {
+  background-color: #2196f3;
+  color: white;
+}
+
+.dark-mode .mode-btn.active {
+  background-color: #1976d2;
+}
+
+.mode-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.dark-mode .mode-btn:hover {
+  background-color: #3d3d3d;
+}

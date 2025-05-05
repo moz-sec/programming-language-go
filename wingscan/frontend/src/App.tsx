@@ -50,39 +50,15 @@ const watchSystemTheme = (setIsDarkMode: (value: boolean) => void) => {
   return () => mediaQuery.removeEventListener("change", handleChange);
 };
 
-const handleScan = async (
-  ipAddress: string,
-  startPort: string,
-  endPort: string,
-  setResultText: (text: string) => void
-) => {
-  try {
-    const start = parseInt(startPort);
-    const end = parseInt(endPort);
-    const results = await ScanPorts(ipAddress, start, end);
-
-    let openPorts = [];
-    for (const [port, isOpen] of Object.entries(results)) {
-      if (isOpen) {
-        openPorts.push(port);
-      }
-    }
-
-    if (openPorts.length > 0) {
-      setResultText(`Open ports: ${openPorts.join(", ")}`);
-    } else {
-      setResultText("No open ports found.");
-    }
-  } catch (error) {
-    setResultText(`Error : ${error}`);
-  }
-};
+type ScanMode = "single" | "range";
 
 function App() {
   const [resultText, setResultText] = useState("");
   const [ipAddress, setIpAddress] = useState("localhost");
   const [startPort, setStartPort] = useState("1");
   const [endPort, setEndPort] = useState("1024");
+  const [singlePort, setSinglePort] = useState("80");
+  const [scanMode, setScanMode] = useState<ScanMode>("single");
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -92,6 +68,43 @@ function App() {
   useEffect(() => {
     watchSystemTheme(setIsDarkMode);
   }, []);
+
+  const handleSinglePortScan = async () => {
+    try {
+      const port = parseInt(singlePort);
+      const isOpen = await ScanPort(ipAddress, port);
+      if (isOpen) {
+        setResultText(`Port ${port} is open`);
+      } else {
+        setResultText(`Port ${port} is closed`);
+      }
+    } catch (error) {
+      setResultText(`Error: ${error}`);
+    }
+  };
+
+  const handleMultipleScan = async () => {
+    try {
+      const start = parseInt(startPort);
+      const end = parseInt(endPort);
+      const results = await ScanPorts(ipAddress, start, end);
+
+      let openPorts = [];
+      for (const [port, isOpen] of Object.entries(results)) {
+        if (isOpen) {
+          openPorts.push(port);
+        }
+      }
+
+      if (openPorts.length > 0) {
+        setResultText(`Open ports: ${openPorts.join(", ")}`);
+      } else {
+        setResultText("No open ports found.");
+      }
+    } catch (error) {
+      setResultText(`Error: ${error}`);
+    }
+  };
 
   return (
     <div id="App" className={isDarkMode ? "dark-mode" : ""}>
@@ -113,6 +126,20 @@ function App() {
         alt="logo"
         className={isDarkMode ? "dark-logo" : "light-logo"}
       />
+      <div className="mode-toggle">
+        <button
+          className={`mode-btn ${scanMode === "single" ? "active" : ""}`}
+          onClick={() => setScanMode("single")}
+        >
+          Single Port
+        </button>
+        <button
+          className={`mode-btn ${scanMode === "range" ? "active" : ""}`}
+          onClick={() => setScanMode("range")}
+        >
+          Port Range
+        </button>
+      </div>
       <div id="result" className="result">
         {resultText}
       </div>
@@ -125,26 +152,39 @@ function App() {
           placeholder="IP Address or Domain"
           autoComplete="off"
         />
-        <input
-          id="startPort"
-          className="input"
-          type="number"
-          value={startPort}
-          onChange={(e) => setStartPort(e.target.value)}
-          placeholder="Start Port"
-        />
-        <input
-          id="endPort"
-          className="input"
-          type="number"
-          value={endPort}
-          onChange={(e) => setEndPort(e.target.value)}
-          placeholder="End Port"
-        />
+        {scanMode === "single" ? (
+          <input
+            id="singlePort"
+            className="input"
+            type="number"
+            value={singlePort}
+            onChange={(e) => setSinglePort(e.target.value)}
+            placeholder="Port Number"
+          />
+        ) : (
+          <>
+            <input
+              id="startPort"
+              className="input"
+              type="number"
+              value={startPort}
+              onChange={(e) => setStartPort(e.target.value)}
+              placeholder="Start Port"
+            />
+            <input
+              id="endPort"
+              className="input"
+              type="number"
+              value={endPort}
+              onChange={(e) => setEndPort(e.target.value)}
+              placeholder="End Port"
+            />
+          </>
+        )}
         <button
           className="btn"
-          onClick={() =>
-            handleScan(ipAddress, startPort, endPort, setResultText)
+          onClick={
+            scanMode === "single" ? handleSinglePortScan : handleMultipleScan
           }
         >
           Scan
