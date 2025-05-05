@@ -1,5 +1,6 @@
-import { useState } from "react";
-import logo from "./assets/images/logo-universal.png";
+import { useState, useEffect } from "react";
+import logo_light from "./assets/images/logo-light.png";
+import logo_dark from "./assets/images/logo-dark.png";
 import "./App.css";
 import { ScanPort, ScanPorts } from "../wailsjs/go/main/App";
 
@@ -8,6 +9,24 @@ function App() {
   const [ipAddress, setIpAddress] = useState("localhost");
   const [startPort, setStartPort] = useState("1");
   const [endPort, setEndPort] = useState("1024");
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Initialize the theme based on local storage and system settings
+  // The priorities are as follows.
+  // 1. local storage settings
+  // 2. system settings
+  useEffect(() => {
+    const systemPrefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    const savedTheme = localStorage.getItem("theme");
+    const initialTheme = savedTheme ? savedTheme === "dark" : systemPrefersDark;
+
+    setIsDarkMode(initialTheme);
+    if (initialTheme) {
+      document.body.classList.add("dark-mode");
+    }
+  }, []);
 
   const handleScan = async () => {
     try {
@@ -32,9 +51,48 @@ function App() {
     }
   };
 
+  // Toggle the theme between light and dark mode
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("theme", newTheme ? "dark" : "light");
+  };
+
+  // Handle system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem("theme")) {
+        setIsDarkMode(e.matches);
+        if (e.matches) {
+          document.body.classList.add("dark-mode");
+        } else {
+          document.body.classList.remove("dark-mode");
+        }
+      }
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
   return (
-    <div id="App">
-      <img src={logo} id="logo" alt="logo" />
+    <div id="App" className={isDarkMode ? "dark-mode" : ""}>
+      <div className="theme-toggle">
+        <span className="theme-label">Light</span>
+        <label className="toggle-switch">
+          <input type="checkbox" checked={isDarkMode} onChange={toggleTheme} />
+          <span className="toggle-slider"></span>
+        </label>
+        <span className="theme-label">Dark</span>
+      </div>
+      <img
+        src={isDarkMode ? logo_dark : logo_light}
+        id="logo"
+        alt="logo"
+        className={isDarkMode ? "dark-logo" : "light-logo"}
+      />
       <div id="result" className="result">
         {resultText}
       </div>

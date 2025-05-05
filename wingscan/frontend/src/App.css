@@ -1,59 +1,181 @@
-#app {
-    height: 100vh;
-    text-align: center;
+#App {
+  height: 100vh;
+  text-align: center;
+  background-color: #ffffff;
+  color: #333333;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+#App.dark-mode {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #2196f3;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(30px);
+}
+
+.theme-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.theme-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .theme-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 #logo {
-    display: block;
-    width: 50%;
-    height: 50%;
-    margin: auto;
-    padding: 10% 0 0;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-origin: content-box;
+  display: block;
+  width: 50%;
+  height: 50%;
+  margin: auto;
+  padding: 10% 0 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-origin: content-box;
+  transition: opacity 0.3s;
+}
+
+.light-logo {
+  opacity: 1;
+}
+
+.dark-logo {
+  opacity: 1;
 }
 
 .result {
-    height: 20px;
-    line-height: 20px;
-    margin: 1.5rem auto;
-}
-
-.input-box .btn {
-    width: 60px;
-    height: 30px;
-    line-height: 30px;
-    border-radius: 3px;
-    border: none;
-    margin: 0 0 0 20px;
-    padding: 0 8px;
-    cursor: pointer;
-}
-
-.input-box .btn:hover {
-    background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
-    color: #333333;
+  height: 20px;
+  line-height: 20px;
+  margin: 1.5rem auto;
 }
 
 .input-box .input {
-    border: none;
-    border-radius: 3px;
-    outline: none;
-    height: 30px;
-    line-height: 30px;
-    padding: 0 10px;
-    background-color: rgba(240, 240, 240, 1);
-    -webkit-font-smoothing: antialiased;
+  border: none;
+  border-radius: 3px;
+  outline: none;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+  background-color: rgba(240, 240, 240, 1);
+  color: #333333;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-mode .input-box .input {
+  background-color: #2d2d2d;
+  color: #ffffff;
 }
 
 .input-box .input:hover {
-    border: none;
-    background-color: rgba(255, 255, 255, 1);
+  border: none;
+  background-color: rgba(248, 248, 248, 1);
+}
+
+.dark-mode .input-box .input:hover {
+  background-color: #3d3d3d;
 }
 
 .input-box .input:focus {
-    border: none;
-    background-color: rgba(255, 255, 255, 1);
+  border: none;
+  background-color: rgba(248, 248, 248, 1);
+}
+
+.dark-mode .input-box .input:focus {
+  background-color: #3d3d3d;
+}
+
+.input-box .btn {
+  width: 60px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 3px;
+  border: none;
+  margin: 0 0 0 20px;
+  padding: 0 8px;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  color: #333333;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-mode .input-box .btn {
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+
+.input-box .btn:hover {
+  background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
+  color: #333333;
+}
+
+.dark-mode .input-box .btn:hover {
+  background-image: linear-gradient(to top, #3d3d3d 0%, #4d4d4d 100%);
+  color: #ffffff;
 }
