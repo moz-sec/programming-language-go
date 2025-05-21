@@ -41,6 +41,7 @@ function App() {
 
   const startScanning = async () => {
     try {
+      setDevices({});
       setResultText("Scanning...");
       await StartScan();
     } catch (error) {
