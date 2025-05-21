@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"tinygo.org/x/bluetooth"
 )
@@ -101,20 +102,29 @@ func (a *App) IsScanning() bool {
 	return a.isScanning
 }
 
-// GetAverageRSSI returns the average RSSI values for all scanned devices
-func (a *App) GetAverageRSSI() map[string]float64 {
-	averages := make(map[string]float64)
+type DeviceRSSI struct {
+	UUID string  `json:"uuid"`
+	RSSI float64 `json:"rssi"`
+}
+
+// GetAverageRSSI returns the average RSSI values for all scanned devices, sorted by RSSI desc
+func (a *App) GetAverageRSSI() []DeviceRSSI {
+	var result []DeviceRSSI
 	for uuid, rssiValues := range a.rssiData {
 		if len(rssiValues) == 0 {
 			continue
 		}
-
 		sum := 0
 		for _, rssi := range rssiValues {
 			sum += rssi
 		}
-		averages[uuid] = float64(sum) / float64(len(rssiValues))
+		avg := float64(sum) / float64(len(rssiValues))
+		result = append(result, DeviceRSSI{UUID: uuid, RSSI: avg})
 	}
 
-	return averages
+	// Sort descending by RSSI value
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].RSSI < result[j].RSSI
+	})
+	return result
 }

@@ -8,12 +8,13 @@ import {
   IsScanning,
   InitializeBLE,
 } from "../wailsjs/go/main/App";
+import { main } from "../wailsjs/go/models";
 
 function App() {
   const [resultText, setResultText] = useState(
     "Click on the 'Start Scan' button to start the BLE scan."
   );
-  const [devices, setDevices] = useState<{ [key: string]: number }>({});
+  const [devices, setDevices] = useState<main.DeviceRSSI[]>([]);
   const [isScanning, setIsScanning] = useState(false);
 
   // Initialize BLE at application startup
@@ -41,7 +42,7 @@ function App() {
 
   const startScanning = async () => {
     try {
-      setDevices({});
+      setDevices([]);
       setResultText("Scanning...");
       await StartScan();
     } catch (error) {
@@ -74,7 +75,7 @@ function App() {
           {isScanning ? "Stop Scan" : "Start Scan"}
         </button>
       </div>
-      {Object.keys(devices).length > 0 && (
+      {devices.length > 0 && (
         <div className="devices-table">
           <h3>Detected Devices:</h3>
           <table>
@@ -85,10 +86,10 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(devices).map(([uuid, rssi]) => (
-                <tr key={uuid}>
-                  <td>{uuid}</td>
-                  <td>{rssi.toFixed(2)}</td>
+              {devices.map((device) => (
+                <tr key={device.uuid}>
+                  <td>{device.uuid}</td>
+                  <td>{device.rssi.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
