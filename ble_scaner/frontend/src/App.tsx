@@ -16,6 +16,8 @@ function App() {
   );
   const [devices, setDevices] = useState<main.DeviceRSSI[]>([]);
   const [isScanning, setIsScanning] = useState(false);
+  const [filterEnabled, setFilterEnabled] = useState<boolean>(true);
+  const [rssiThreshold, setRssiThreshold] = useState<number>(100);
 
   // Initialize BLE at application startup
   useEffect(() => {
@@ -61,6 +63,10 @@ function App() {
     }
   };
 
+  const filteredDevices = filterEnabled
+    ? devices.filter((device) => device.rssi > -rssiThreshold)
+    : devices;
+
   return (
     <div id="App">
       <img src={logo} id="logo" alt="logo" />
@@ -75,7 +81,37 @@ function App() {
           {isScanning ? "Stop Scan" : "Start Scan"}
         </button>
       </div>
-      {devices.length > 0 && (
+      <div className="filter-panel">
+        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span>フィルタ</span>
+          <span className="switch">
+            <input
+              type="checkbox"
+              checked={filterEnabled}
+              onChange={(e) => setFilterEnabled(e.target.checked)}
+            />
+            <span className="slider"></span>
+          </span>
+        </label>
+        {filterEnabled && (
+          <>
+            <span>RSSI閾値:</span>
+            <span>-</span>
+            <input
+              className="filter-input"
+              type="number"
+              step="1"
+              value={rssiThreshold}
+              onChange={(e) =>
+                setRssiThreshold(Math.floor(Number(e.target.value)))
+              }
+            />
+            <span>dBmより強い</span>
+          </>
+        )}
+      </div>
+
+      {!isScanning && filteredDevices.length > 0 && (
         <div className="devices-table">
           <h3>Detected Devices:</h3>
           <table>
@@ -86,7 +122,7 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {devices.map((device) => (
+              {filteredDevices.map((device) => (
                 <tr key={device.uuid}>
                   <td>{device.uuid}</td>
                   <td>{device.rssi.toFixed(2)}</td>
